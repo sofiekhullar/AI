@@ -116,8 +116,10 @@ PlayState = {};
 
 PlayState.init = function () {
 
-    this.AI = new AI();
-    this.AI.sayHi();
+    // Add array with populations
+    this.population = new population();
+    this.population.createFirstPopulation();
+    this.population.createPopulation();
 
     this.game.renderer.renderSession.roundPixels = true;
     this.keys = this.game.input.keyboard.addKeys({
