@@ -121,6 +121,7 @@ PlayState.init = function () {
     this.population.createFirstPopulation();
     this.population.createPopulation();
 
+
     this.game.renderer.renderSession.roundPixels = true;
     this.keys = this.game.input.keyboard.addKeys({
         left: Phaser.KeyCode.LEFT,
