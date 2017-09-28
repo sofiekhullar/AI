@@ -115,8 +115,11 @@ Spider.prototype.die = function () {
 PlayState = {};
 
 PlayState.init = function () {
-    this.game.renderer.renderSession.roundPixels = true;
 
+    this.AI = new AI();
+    this.AI.sayHi();
+
+    this.game.renderer.renderSession.roundPixels = true;
     this.keys = this.game.input.keyboard.addKeys({
         left: Phaser.KeyCode.LEFT,
         right: Phaser.KeyCode.RIGHT,
@@ -195,6 +198,8 @@ PlayState._handleCollisions = function () {
 
 PlayState._handleInput = function () {
 	// move hero left
+	
+	// this.hero.move(1);
     if (this.keys.left.isDown) { 
         this.hero.move(-1);
     }
