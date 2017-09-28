@@ -5,6 +5,7 @@ function member(){
      let ID;
      let mutantChance = 0.05;
      let DNASize = 10;
+     let commandList = ["WR", "WL", "J", "JR", "JL"];
 
      // create random member DNA
      this.createFirstMember = function(){
@@ -22,9 +23,8 @@ function member(){
 
     // Possible genes is WR, WL, J, JR, JL
     this.createFirstDNA = function(){
-        // long random string with commands
         for(let i = 0; i < DNASize; i ++){
-            DNA[i] = "WR";
+            DNA[i] = commandList[Math.floor((Math.random() * 5) )];
         }
         console.log("Creating member with DNA: " + DNA);
         return DNA;
