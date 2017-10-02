@@ -121,9 +121,12 @@ PlayState.init = function () {
     this.population.createFirstPopulation();
     this.population.createPopulation();
 
-    this.testDNA = ["WR", "WR", "WL", "WR", "WR", "WR", "JL", "WR", "WR", "WL", "WR", "WR", "WR", "WR", "WR","WR", "JL", "WR", "WR", "WR"];
+    this.testDNA = this.population.getMember(0).getDNA();
+
+    console.log(this.population.getMember(0));
 
     this.game.renderer.renderSession.roundPixels = true;
+
     this.keys = this.game.input.keyboard.addKeys({
         left: Phaser.KeyCode.LEFT,
         right: Phaser.KeyCode.RIGHT,
@@ -185,7 +188,7 @@ PlayState.create = function () {
     this.game.add.image(0, 0, 'background');
     this._loadLevel(this.game.cache.getJSON('level:1'));
 
-    // crete hud with scoreboards)
+    // crete hud with scoreboards
     this._createHud();
 };
 
@@ -201,6 +204,9 @@ PlayState.update = function () {
         if(this.commandIndex === this.testDNA.length){
             console.log("Stop DNA end");
             // Calculate fitness score
+            this.population.getMember(0).setFitnessScore(this._calculateDistance(this.hero.position, this.door.position));
+
+            console.log(this.population.getMember(0));
             this.hero.move(0);
         }
     }
@@ -364,6 +370,14 @@ PlayState._spawnDoor = function (x, y) {
     this.game.physics.enable(this.door);
     this.door.body.allowGravity = false;
 };
+
+PlayState._calculateDistance = function(pos1, pos2){
+    let distance = Math.sqrt(Math.pow((pos2.x-pos1.x), 2) + Math.pow((pos2.y-pos1.y), 2));
+    console.log(distance);
+    return distance;
+
+};
+
 
 // entry point
 window.onload = function () {

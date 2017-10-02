@@ -45,5 +45,9 @@ function population(){
 
     this.setSize = function (size) {
         this.size = size;
-    }
+    };
+
+    this.getMember = function(index) {
+        return members[index];
+    };
 }

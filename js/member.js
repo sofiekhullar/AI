@@ -1,7 +1,7 @@
 function member(){
 
-     let DNA = [];
-     let fitnessScore;
+     this.DNA = [];
+     this.fitnessScore = 0;
      let ID;
      let mutantChance = 0.05;
      let DNASize = 10;
@@ -24,10 +24,10 @@ function member(){
     // Possible genes is WR, WL, J, JR, JL
     this.createFirstDNA = function(){
         for(let i = 0; i < DNASize; i ++){
-            DNA[i] = commandList[Math.floor((Math.random() * 5))];
+            this.DNA[i] = commandList[Math.floor((Math.random() * 5))];
         }
-        console.log("Creating member with DNA: " + DNA);
-        return DNA;
+        console.log("Creating member with DNA: " + this.DNA);
+        return this.DNA;
     };
 
     this.createDNA = function (parent1DNA, parent2DNA) {
@@ -40,17 +40,21 @@ function member(){
     };
 
     this.getDNA = function () {
-        return DNA;
+        return this.DNA;
     };
 
     // calculate distance to door
     this.calcFitnessScore = function(){
         // Get last position and time  (+coins)
-        return fitnessScore;
+        return this.fitnessScore;
     };
 
+    this.setFitnessScore = function (fitnessScore) {
+         this.fitnessScore = fitnessScore;
+    };
+    
     this.getFitnessScore = function(){
-        return fitnessScore;
+        return this.fitnessScore;
     };
 
     this.getID = function () {
