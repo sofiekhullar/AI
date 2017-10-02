@@ -24,7 +24,7 @@ function member(){
     // Possible genes is WR, WL, J, JR, JL
     this.createFirstDNA = function(){
         for(let i = 0; i < DNASize; i ++) {
-            this.DNA[i] = commandList[Math.floor((Math.random() * DNASize))];
+            this.DNA[i] = commandList[Math.floor((Math.random() * commandList.length))];
         }
 
         console.log("Creating member with DNA: " + this.DNA);
@@ -40,9 +40,23 @@ function member(){
         let gene1 = parent1.slice(0, random);
         let gene2 = parent2.slice(random, 10);
         let child = gene1.concat(gene2);
+        return this.addMutation(child);
+
+
     };
 
-    this.addMutation = function(){
+    this.addMutation = function(child){
+        let mutantPercentage = 15;
+        let random = Math.floor((Math.random() * 100) + 1);
+        if(mutantPercentage >= random){
+            x = Math.floor((Math.random() * child.length) + 1);
+            y = Math.floor((Math.random() * child.length) + 1);
+            let temp = child[x];
+            child[x] = child[y];
+            child[y] = temp;
+            console.log("mutant" + child)
+;        }
+        return child;
 
     };
 
