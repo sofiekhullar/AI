@@ -4,7 +4,6 @@ function population(){
     let size = 5;
 
     this.createFirstPopulation = function(){
-
         console.log("creating first population...");
 
         for(let i = 0; i < size; i++){
@@ -13,11 +12,11 @@ function population(){
             members[i] = this.member;
             //console.log(this.member.getDNA());
         }
-
     };
 
     this.createPopulation = function(){
         console.log("creating next population...");
+
         for(let i = 0; i < size; i++){
             this.member = new member();
             let bestParents = this.getBestParents();

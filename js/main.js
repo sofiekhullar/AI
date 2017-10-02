@@ -121,6 +121,7 @@ PlayState.init = function () {
     this.population.createFirstPopulation();
     this.population.createPopulation();
 
+    this.testDNA = ["WR", "WR", "WL", "WR", "WR", "WR", "JL", "WR", "WR", "WL", "WR", "WR", "WR", "WR", "WR","WR", "JL", "WR", "WR", "WR"];
 
     this.game.renderer.renderSession.roundPixels = true;
     this.keys = this.game.input.keyboard.addKeys({
@@ -137,6 +138,12 @@ PlayState.init = function () {
     }, this);
 
     this.coinPickupCount = 0;
+
+    // variables for updating commands
+    this.runIndex = 0;
+    this.shouldRun = true;
+    this.commandIndex = 0;
+
 };
 
 PlayState.preload = function () {
@@ -184,7 +191,19 @@ PlayState.create = function () {
 
 PlayState.update = function () {
     this._handleCollisions();
-    this._handleInput();
+
+    this.runIndex++;
+    if(this.runIndex === 20 && this.shouldRun) {
+        this._handleInput(this.testDNA[this.commandIndex]);
+        this.commandIndex++;
+        this.runIndex = 0;
+        // Check if last bit of DNA if true stop hero
+        if(this.commandIndex === this.testDNA.length){
+            console.log("Stop DNA end");
+            // Calculate fitness score
+            this.hero.move(0);
+        }
+    }
 
     this.coinFont.text = `x${this.coinPickupCount}`;
 };
@@ -199,18 +218,32 @@ PlayState._handleCollisions = function () {
     this.game.physics.arcade.overlap(this.hero, this.door, this._onHeroVsDoor, null, this);
 };
 
-PlayState._handleInput = function () {
-	// move hero left
-	
-	// this.hero.move(1);
-    if (this.keys.left.isDown) { 
-        this.hero.move(-1);
-    }
-    // move hero right
-    else if (this.keys.right.isDown) { 
+PlayState._handleInput = function (command) {
+    if(command === "WR") {
+        console.log("go right");
         this.hero.move(1);
     }
-    else { // stop
+    else if(command === "WL"){
+        console.log("go left");
+        this.hero.move(-1);
+    }
+    else if(command === "J"){
+        console.log("jump");
+        this.hero.jump();
+    }
+    else if(command === "JR"){
+        console.log("jump right");
+        this.hero.move(1);
+        this.hero.jump();
+    }
+    else if(command === "JL"){
+        console.log("jump left");
+        this.hero.move(-1);
+        this.hero.jump();
+    }
+    else if(command === "STOP"){
+        console.log("stop");
+        this.shouldRun = false;
         this.hero.move(0);
     }
 };
