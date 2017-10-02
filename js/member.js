@@ -24,7 +24,7 @@ function member(){
     // Possible genes is WR, WL, J, JR, JL
     this.createFirstDNA = function(){
         for(let i = 0; i < DNASize; i ++){
-            DNA[i] = commandList[Math.floor((Math.random() * 5) )];
+            DNA[i] = commandList[Math.floor((Math.random() * 5))];
         }
         console.log("Creating member with DNA: " + DNA);
         return DNA;
