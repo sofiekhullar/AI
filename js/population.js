@@ -1,6 +1,6 @@
-function population(){
-    let members = [];
-    let generationNr;
+function population(generationNr){
+    this.members = [];
+    this.generationNr = generationNr;
     this.size = 5;
 
     this.createFirstPopulation = function(){
@@ -9,7 +9,7 @@ function population(){
         for(let i = 0; i < this.size; i++){
             this.member = new member();
             this.member.createFirstMember();
-            members[i] = this.member;
+            this.members[i] = this.member;
             //console.log(this.member.getDNA());
         }
     };
@@ -36,11 +36,15 @@ function population(){
     };
 
     this.getPopulation = function () {
-        return members;
+        return this.members;
     };
 
-    this.getGerationNr = function () {
-        return generationNr;
+    this.getGeneration = function () {
+        return this.generationNr;
+    };
+
+    this.addGeneration = function () {
+        this.generationNr++;
     };
 
     this.setSize = function (size) {
@@ -48,6 +52,6 @@ function population(){
     };
 
     this.getMember = function(index) {
-        return members[index];
+        return this.members[index];
     };
 }

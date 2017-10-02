@@ -117,9 +117,9 @@ PlayState = {};
 PlayState.init = function () {
 
     // Add array with populations
-    this.population = new population();
+    this.population = new population(0);
     this.population.createFirstPopulation();
-    this.population.createPopulation();
+    //this.population.createPopulation();
 
     this.firstDNA = [];
     for(let i = 0; i < this.population.size; i++){
@@ -196,7 +196,7 @@ PlayState.update = function () {
     this._handleCollisions();
 
     this.runIndex++;
-    if(this.runIndex === 30) {
+    if(this.runIndex === 20) {
         // Check if all the commands have run for all heroes
         if(this.commandIndex !== this.population.size) {
             this._handleInput(this.firstDNA[this.commandIndex]);
@@ -206,8 +206,9 @@ PlayState.update = function () {
             // If all commands are done, make heroes stop and calculate fitness score
             for(let i = 0; i < this.population.size; i++){
                 this.heroes.children[i].move(0);
-                this.population.getMember(i).setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
+                this.population.members[i].setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
             }
+            this._createNewGeneration();
         }
     }
     this.coinFont.text = `x${this.coinPickupCount}`;
@@ -309,12 +310,20 @@ PlayState._spawnCharacters = function (data) {
         this.spiders.add(sprite);
     }, this);
 
+    this._spawnHeroes();
     // spawn heroes
+
+};
+
+PlayState._spawnHeroes = function () {
+    let x = 21;
+    let y = 525;
     for(let i = 0; i < this.population.size; i++){
-        let sprite = new Hero(this.game, 21 + i*10, 525);
+        let sprite = new Hero(this.game, x, y);
         this.heroes.add(sprite);
     }
 };
+
 
 PlayState._spawnCoin = function (coin) {
     let sprite = this.coins.create(coin.x, coin.y, 'coin');
@@ -381,6 +390,24 @@ PlayState._calculateDistance = function(pos1, pos2){
     return distance;
 };
 
+PlayState._createNewGeneration = function () {
+    this.newPopulation = new population(1);
+    this.newPopulation.createPopulation();
+    this.heroesDNA = [];
+
+    console.log(this.population);
+    console.log(this.newPopulation);
+
+    for(let i = 0; i < this.newPopulation.size; i++) {
+        //console.log(this.newPopulation.members[i]);
+        //this.heroesDNA[i] = this.newPopulation.members[i].getDNA();
+
+        // TODO: here we need to have proper members with DNA to test and create next generation of heroes
+        this.heroes.getAt(i).kill();
+        this._spawnHeroes()
+    }
+    console.log(this.heroesDNA)
+};
 // entry point
 window.onload = function () {
     let game = new Phaser.Game(960, 600, Phaser.AUTO, 'game');
