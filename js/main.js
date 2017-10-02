@@ -121,6 +121,11 @@ PlayState.init = function () {
     this.population.createFirstPopulation();
     this.population.createPopulation();
 
+    this.firstDNA = [];
+    for(let i = 0; i < this.population.size; i++){
+        this.firstDNA[i] = this.population.getMember(i).getDNA();
+    }
+
     this.testDNA = this.population.getMember(0).getDNA();
 
     console.log(this.population.getMember(0));
@@ -146,7 +151,7 @@ PlayState.init = function () {
     this.runIndex = 0;
     this.shouldRun = true;
     this.commandIndex = 0;
-
+    this.heroIndex = 0;
 };
 
 PlayState.preload = function () {
@@ -197,17 +202,18 @@ PlayState.update = function () {
 
     this.runIndex++;
     if(this.runIndex === 20 && this.shouldRun) {
+
         this._handleInput(this.testDNA[this.commandIndex]);
         this.commandIndex++;
         this.runIndex = 0;
         // Check if last bit of DNA if true stop hero
         if(this.commandIndex === this.testDNA.length){
             console.log("Stop DNA end");
+            this.heroes.children[0].move(0);
             // Calculate fitness score
-            this.population.getMember(0).setFitnessScore(this._calculateDistance(this.hero.position, this.door.position));
+            this.population.getMember(0).setFitnessScore(this._calculateDistance(this.heroes.position, this.door.position));
 
             console.log(this.population.getMember(0));
-            this.hero.move(0);
         }
     }
 
@@ -217,40 +223,35 @@ PlayState.update = function () {
 PlayState._handleCollisions = function () {
     this.game.physics.arcade.collide(this.spiders, this.platforms);
     this.game.physics.arcade.collide(this.spiders, this.enemyWalls);
-    this.game.physics.arcade.collide(this.hero, this.platforms);
+    this.game.physics.arcade.collide(this.heroes, this.platforms);
 
-    this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
-    this.game.physics.arcade.overlap(this.hero, this.spiders, this._onHeroVsEnemy, null, this);
-    this.game.physics.arcade.overlap(this.hero, this.door, this._onHeroVsDoor, null, this);
+    this.game.physics.arcade.overlap(this.heroes, this.coins, this._onHeroVsCoin, null, this);
+    this.game.physics.arcade.overlap(this.heroes, this.spiders, this._onHeroVsEnemy, null, this);
+    this.game.physics.arcade.overlap(this.heroes, this.door, this._onHeroVsDoor, null, this);
 };
 
 PlayState._handleInput = function (command) {
     if(command === "WR") {
         console.log("go right");
-        this.hero.move(1);
+        this.heroes.children[0].move(1);
     }
     else if(command === "WL"){
         console.log("go left");
-        this.hero.move(-1);
+        this.heroes.children[0].move(-1);
     }
     else if(command === "J"){
         console.log("jump");
-        this.hero.jump();
+        this.heroes.children[0].jump();
     }
     else if(command === "JR"){
         console.log("jump right");
-        this.hero.move(1);
-        this.hero.jump();
+        this.heroes.children[0].move(1);
+        this.heroes.children[0].jump();
     }
     else if(command === "JL"){
         console.log("jump left");
-        this.hero.move(-1);
-        this.hero.jump();
-    }
-    else if(command === "STOP"){
-        console.log("stop");
-        this.shouldRun = false;
-        this.hero.move(0);
+        this.heroes.children[0].move(-1);
+        this.heroes.children[0].jump();
     }
 };
 
@@ -260,13 +261,14 @@ PlayState._loadLevel = function (data) {
     this.platforms = this.game.add.group();
     this.coins = this.game.add.group();
     this.spiders = this.game.add.group();
+    this.heroes = this.game.add.group();
     this.enemyWalls = this.game.add.group();
     this.enemyWalls.visible = false;
 
     // spawn all platforms
     data.platforms.forEach(this._spawnPlatform, this);
     // spawn hero and enemies
-    this._spawnCharacters({hero: data.hero, spiders: data.spiders});
+    this._spawnCharacters({heroes: data.heroes, spiders: data.spiders});
     // spawn important objects
     data.coins.forEach(this._spawnCoin, this);
 
@@ -306,9 +308,18 @@ PlayState._spawnCharacters = function (data) {
         this.spiders.add(sprite);
     }, this);
 
+    console.log(data);
+
     // spawn hero
-    this.hero = new Hero(this.game, data.hero.x, data.hero.y);
-    this.game.add.existing(this.hero);
+    for(let i = 0; i < 5; i++){
+        let sprite = new Hero(this.game, 21 + i*10, 525);
+        this.heroes.add(sprite);
+        console.log(this.heroes)
+    }
+    //this.hero = new Hero(this.game, data.hero.x, data.hero.y);
+
+    //this.game.add.existing(this.heroes);
+    console.log(this.heroes.children);
 };
 
 PlayState._spawnCoin = function (coin) {

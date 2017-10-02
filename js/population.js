@@ -1,12 +1,12 @@
 function population(){
     let members = [];
     let generationNr;
-    let size = 5;
+    this.size = 5;
 
     this.createFirstPopulation = function(){
         console.log("creating first population...");
 
-        for(let i = 0; i < size; i++){
+        for(let i = 0; i < this.size; i++){
             this.member = new member();
             this.member.createFirstMember();
             members[i] = this.member;
@@ -17,7 +17,7 @@ function population(){
     this.createPopulation = function(){
         console.log("creating next population...");
 
-        for(let i = 0; i < size; i++){
+        for(let i = 0; i < this.size; i++){
             this.member = new member();
             let bestParents = this.getBestParents();
             this.member.createMember("", ""); //bestParents[0], bestParents[1]);
