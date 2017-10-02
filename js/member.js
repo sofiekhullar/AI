@@ -23,16 +23,23 @@ function member(){
 
     // Possible genes is WR, WL, J, JR, JL
     this.createFirstDNA = function(){
-        for(let i = 0; i < DNASize; i ++){
-            this.DNA[i] = commandList[Math.floor((Math.random() * 5))];
+        for(let i = 0; i < DNASize; i ++) {
+            this.DNA[i] = commandList[Math.floor((Math.random() * DNASize))];
         }
+
         console.log("Creating member with DNA: " + this.DNA);
         return this.DNA;
     };
 
     this.createDNA = function (parent1DNA, parent2DNA) {
-        // Add mutation here!
-        this.addMutation();
+        let parent1 = ["WR", "WL", "J", "JR", "JL","WR", "WL", "J", "JR", "JL"];
+        let parent2 = ["WL0","WL1","WL2","WL3","WL4","WL5","WL6","WL7","WL8","WL9"];
+
+        //possible to get the DNS from only one parent
+        let random = Math.floor((Math.random() * parent1.length) + 1);
+        let gene1 = parent1.slice(0, random);
+        let gene2 = parent2.slice(random, 10);
+        let child = gene1.concat(gene2);
     };
 
     this.addMutation = function(){
