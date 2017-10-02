@@ -126,10 +126,6 @@ PlayState.init = function () {
         this.firstDNA[i] = this.population.getMember(i).getDNA();
     }
 
-    this.testDNA = this.population.getMember(0).getDNA();
-
-    console.log(this.population.getMember(0));
-
     this.game.renderer.renderSession.roundPixels = true;
 
     this.keys = this.game.input.keyboard.addKeys({
@@ -138,18 +134,17 @@ PlayState.init = function () {
         up: Phaser.KeyCode.UP
     });
 
-    this.keys.up.onDown.add(function () {
-        let didJump = this.hero.jump();
+   /* this.keys.up.onDown.add(function () {
+        let didJump = this.heroes.jump();
         if (didJump) {
             this.sfx.jump.play();
         }
-    }, this);
+    }, this);*/
 
     this.coinPickupCount = 0;
 
     // variables for updating commands
     this.runIndex = 0;
-    this.shouldRun = true;
     this.commandIndex = 0;
     this.heroIndex = 0;
 };
@@ -201,22 +196,20 @@ PlayState.update = function () {
     this._handleCollisions();
 
     this.runIndex++;
-    if(this.runIndex === 20 && this.shouldRun) {
-
-        this._handleInput(this.testDNA[this.commandIndex]);
-        this.commandIndex++;
-        this.runIndex = 0;
-        // Check if last bit of DNA if true stop hero
-        if(this.commandIndex === this.testDNA.length){
-            console.log("Stop DNA end");
-            this.heroes.children[0].move(0);
-            // Calculate fitness score
-            this.population.getMember(0).setFitnessScore(this._calculateDistance(this.heroes.position, this.door.position));
-
-            console.log(this.population.getMember(0));
+    if(this.runIndex === 30) {
+        // Check if all the commands have run for all heroes
+        if(this.commandIndex !== this.population.size) {
+            this._handleInput(this.firstDNA[this.commandIndex]);
+            this.commandIndex++;
+            this.runIndex = 0;
+        } else {
+            // If all commands are done, make heroes stop and calculate fitness score
+            for(let i = 0; i < this.population.size; i++){
+                this.heroes.children[i].move(0);
+                this.population.getMember(i).setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
+            }
         }
     }
-
     this.coinFont.text = `x${this.coinPickupCount}`;
 };
 
@@ -231,27 +224,35 @@ PlayState._handleCollisions = function () {
 };
 
 PlayState._handleInput = function (command) {
-    if(command === "WR") {
-        console.log("go right");
-        this.heroes.children[0].move(1);
-    }
-    else if(command === "WL"){
-        console.log("go left");
-        this.heroes.children[0].move(-1);
-    }
-    else if(command === "J"){
-        console.log("jump");
-        this.heroes.children[0].jump();
-    }
-    else if(command === "JR"){
-        console.log("jump right");
-        this.heroes.children[0].move(1);
-        this.heroes.children[0].jump();
-    }
-    else if(command === "JL"){
-        console.log("jump left");
-        this.heroes.children[0].move(-1);
-        this.heroes.children[0].jump();
+    for(let i = 0; i <= command.length; i++) {
+        if (command[i] === "WR") {
+            //console.log("go right");
+            this.heroes.children[this.heroIndex].move(1);
+        }
+        else if (command[i] === "WL") {
+            //console.log("go left");
+            this.heroes.children[this.heroIndex].move(-1);
+        }
+        else if (command[i] === "J") {
+            //console.log("jump");
+            this.heroes.children[this.heroIndex].jump();
+        }
+        else if (command[i] === "JR") {
+            //console.log("jump right");
+            this.heroes.children[this.heroIndex].move(1);
+            this.heroes.children[this.heroIndex].jump();
+        }
+        else if (command[i] === "JL") {
+            //console.log("jump left");
+            this.heroes.children[this.heroIndex].move(-1);
+            this.heroes.children[this.heroIndex].jump();
+        }
+
+        // Go to the next hero and make one command for each and then reset index
+        this.heroIndex++;
+        if(this.heroIndex === this.population.size) {
+            this.heroIndex = 0;
+        }
     }
 };
 
@@ -308,18 +309,11 @@ PlayState._spawnCharacters = function (data) {
         this.spiders.add(sprite);
     }, this);
 
-    console.log(data);
-
-    // spawn hero
-    for(let i = 0; i < 5; i++){
+    // spawn heroes
+    for(let i = 0; i < this.population.size; i++){
         let sprite = new Hero(this.game, 21 + i*10, 525);
         this.heroes.add(sprite);
-        console.log(this.heroes)
     }
-    //this.hero = new Hero(this.game, data.hero.x, data.hero.y);
-
-    //this.game.add.existing(this.heroes);
-    console.log(this.heroes.children);
 };
 
 PlayState._spawnCoin = function (coin) {
@@ -384,11 +378,8 @@ PlayState._spawnDoor = function (x, y) {
 
 PlayState._calculateDistance = function(pos1, pos2){
     let distance = Math.sqrt(Math.pow((pos2.x-pos1.x), 2) + Math.pow((pos2.y-pos1.y), 2));
-    console.log(distance);
     return distance;
-
 };
-
 
 // entry point
 window.onload = function () {
