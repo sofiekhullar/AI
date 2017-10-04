@@ -208,7 +208,9 @@ PlayState.update = function () {
                 this.heroes.children[i].move(0);
                 this.population.members[i].setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
             }
-            //this._createNewGeneration();
+            console.log(this.population);
+
+            this._createNewGeneration();
         }
     }
     this.coinFont.text = `x${this.coinPickupCount}`;
@@ -391,8 +393,9 @@ PlayState._calculateDistance = function(pos1, pos2){
 };
 
 PlayState._createNewGeneration = function () {
+    this.population.mapFitnessScoreMembers();
     this.newPopulation = new population(1);
-    this.newPopulation.createPopulation();
+    this.newPopulation.createPopulation(this.population.members);
     this.heroesDNA = [];
 
     console.log(this.population);
@@ -400,13 +403,10 @@ PlayState._createNewGeneration = function () {
 
     for(let i = 0; i < this.newPopulation.size; i++) {
         //console.log(this.newPopulation.members[i]);
-        //this.heroesDNA[i] = this.newPopulation.members[i].getDNA();
-
-        // TODO: here we need to have proper members with DNA to test and create next generation of heroes
+        this.heroesDNA[i] = this.newPopulation.members[i].getDNA();
         this.heroes.getAt(i).kill();
         this._spawnHeroes()
     }
-    console.log(this.heroesDNA)
 };
 // entry point
 window.onload = function () {

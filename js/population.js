@@ -1,5 +1,6 @@
 function population(generationNr){
     this.members = [];
+    this.membersLastGen = [];
     this.generationNr = generationNr;
     this.size = 5;
 
@@ -10,29 +11,51 @@ function population(generationNr){
             this.member = new member();
             this.member.createFirstMember();
             this.members[i] = this.member;
-            //console.log(this.member.getDNA());
         }
     };
 
-    this.createPopulation = function(){
+    this.createPopulation = function(membersLastGen){
         console.log("creating next population...");
+        this.membersLastGen = membersLastGen;
 
         for(let i = 0; i < this.size; i++){
+            let bestParent1 = this.getBestParents();
+            let bestParent2 = this.getBestParents();
+            console.log("best parent " + bestParent1.DNA  + " + "  + bestParent2.DNA);
             this.member = new member();
-            let bestParents = this.getBestParents();
-            this.member.createMember("", ""); //bestParents[0], bestParents[1]);
+            this.member.createMember(bestParent1.DNA, bestParent2.DNA); //bestParents[0], bestParents[1]);
+            this.members[i] = this.member;
         }
     };
 
     this.getBestParents = function(){
-        this.sortParents();
         // sort first and then random choose from best parents
-        return null;//bestParents;
+        this.membersLastGen.sort(function (a,b) {
+           return a.fitnessScore - b.fitnessScore;
+        });
+
+        let random = Math.floor((Math.random() *101));
+        let startValue = 100 * this.membersLastGen[0].propFitnessScore; // Best member
+        console.log(startValue + ", random " + random);
+
+        for(let i = 0; i < this.size; i++){
+            if(random <= startValue){
+                return this.membersLastGen[i];
+            }
+            startValue += 100*this.membersLastGen[i+1].propFitnessScore;
+        }
     };
 
-    this.sortParents = function () {
-        // get fitness score and sort
-        // this.member.getFitnessScore();
+    this.mapFitnessScoreMembers = function(){
+        let totalScore = 0;
+
+        for(let i = 0; i < this.members.length; i++){
+            totalScore += 1/(1 + this.members[i].getFitnessScore());
+        }
+        for(let i = 0; i <this.members.length; i++){
+            this.members[i].setPropFitnessScore((1/(1+this.members[i].fitnessScore) / totalScore));
+        }
+
     };
 
     this.getPopulation = function () {
