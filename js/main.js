@@ -208,7 +208,7 @@ PlayState.update = function () {
                 this.heroes.children[i].move(0);
                 this.population.members[i].setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
             }
-            this._createNewGeneration();
+            //this._createNewGeneration();
         }
     }
     this.coinFont.text = `x${this.coinPickupCount}`;
