@@ -19,6 +19,7 @@ function population(generationNr){
         this.membersLastGen = membersLastGen;
 
         for(let i = 0; i < this.size; i++){
+            // TODO check if same parent
             let bestParent1 = this.getBestParents();
             let bestParent2 = this.getBestParents();
             console.log("best parent " + bestParent1.DNA  + " + "  + bestParent2.DNA);

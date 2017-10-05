@@ -117,13 +117,15 @@ PlayState = {};
 PlayState.init = function () {
 
     // Add array with populations
+    this.populations = [];
     this.population = new population(0);
     this.population.createFirstPopulation();
+    this.populations[0] = this.population;
     //this.population.createPopulation();
 
-    this.firstDNA = [];
+    this.DNA = [];
     for(let i = 0; i < this.population.size; i++){
-        this.firstDNA[i] = this.population.getMember(i).getDNA();
+        this.DNA[i] = this.population.getMember(i).getDNA();
     }
 
     this.game.renderer.renderSession.roundPixels = true;
@@ -147,6 +149,7 @@ PlayState.init = function () {
     this.runIndex = 0;
     this.commandIndex = 0;
     this.heroIndex = 0;
+    this.populationIndex = 0;
 };
 
 PlayState.preload = function () {
@@ -198,22 +201,35 @@ PlayState.update = function () {
     this.runIndex++;
     if(this.runIndex === 20) {
         // Check if all the commands have run for all heroes
-        if(this.commandIndex !== this.population.size) {
-            this._handleInput(this.firstDNA[this.commandIndex]);
-            this.commandIndex++;
-            this.runIndex = 0;
-        } else {
-            // If all commands are done, make heroes stop and calculate fitness score
-            for(let i = 0; i < this.population.size; i++){
-                this.heroes.children[i].move(0);
-                this.population.members[i].setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
-            }
-            console.log(this.population);
-
-            this._createNewGeneration();
+        console.log(this.populations.length + " " + this.populationIndex);
+        if(this.populationIndex < 2) {
+            this._runPopulation(this.populations[this.populationIndex]);
         }
+
     }
     this.coinFont.text = `x${this.coinPickupCount}`;
+};
+
+PlayState._runPopulation = function (currentPopulation) {
+
+    if(this.commandIndex !== currentPopulation.size) {
+        console.log(currentPopulation);
+        this._handleInput(this.DNA[this.commandIndex]);
+        this.commandIndex++;
+        this.runIndex = 0;
+    } else {
+        // If all commands are done, make heroes stop and calculate fitness score
+        for(let i = 0; i < this.population.size; i++){
+            this.heroes.children[i].move(0);
+            currentPopulation.members[i].setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
+        }
+        console.log(this.population);
+
+        this._createNewGeneration();
+        this.populationIndex++;
+        this.runIndex = 0;
+        this.commandIndex = 0;
+    }
 };
 
 PlayState._handleCollisions = function () {
@@ -227,6 +243,7 @@ PlayState._handleCollisions = function () {
 };
 
 PlayState._handleInput = function (command) {
+    this.heroes.children[0].move(1);
     for(let i = 0; i <= command.length; i++) {
         if (command[i] === "WR") {
             //console.log("go right");
@@ -326,7 +343,6 @@ PlayState._spawnHeroes = function () {
     }
 };
 
-
 PlayState._spawnCoin = function (coin) {
     let sprite = this.coins.create(coin.x, coin.y, 'coin');
     sprite.anchor.set(0.5, 0.5);
@@ -393,20 +409,23 @@ PlayState._calculateDistance = function(pos1, pos2){
 };
 
 PlayState._createNewGeneration = function () {
+
     this.population.mapFitnessScoreMembers();
     this.newPopulation = new population(1);
+    this.populations[1] = this.newPopulation;
     this.newPopulation.createPopulation(this.population.members);
-    this.heroesDNA = [];
 
-    console.log(this.population);
-    console.log(this.newPopulation);
+    //console.log(this.population);
+    //console.log(this.newPopulation);
 
     for(let i = 0; i < this.newPopulation.size; i++) {
         //console.log(this.newPopulation.members[i]);
-        this.heroesDNA[i] = this.newPopulation.members[i].getDNA();
-        this.heroes.getAt(i).kill();
-        this._spawnHeroes()
+        this.DNA[i] = this.newPopulation.members[i].getDNA();
+        //this.heroes.children[i].body.moves = false;
+        this.heroes.children[i].x = 21;
+        this.heroes.children[i].y = 525;
     }
+    //console.log(this.heroes.children)
 };
 // entry point
 window.onload = function () {
