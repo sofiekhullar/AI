@@ -4,13 +4,13 @@ function member(){
      this.fitnessScore = 0;
      this.propFitnessScore = 0;
      let ID;
-     let mutantChance = 0.05;
-     let DNASize = 10;
+     this.mutantChance = 5;
+     this.DNASize = 30;
      let commandList = ["WR", "WL", "J", "JR", "JL"];
 
      // create random member DNA
      this.createFirstMember = function(){
-         console.log("Creating first member..");
+         //console.log("Creating first member..");
          this.createFirstDNA();
         // call create DNA
     };
@@ -23,7 +23,7 @@ function member(){
 
     // Possible genes is WR, WL, J, JR, JL
     this.createFirstDNA = function(){
-        for(let i = 0; i < DNASize; i ++) {
+        for(let i = 0; i < this.DNASize; i ++) {
             this.DNA[i] = commandList[Math.floor((Math.random() * commandList.length))];
         }
 
@@ -44,18 +44,17 @@ function member(){
     };
 
     this.addMutation = function(child){
-        let mutantPercentage = 15; // TODO check value for mutation
+        // TODO check value for mutation
         let random = Math.floor((Math.random() * 100) + 1);
-        if(mutantPercentage >= random){
+        if(this.mutantChance >= random){
             x = Math.floor((Math.random() * child.length) + 1);
             y = Math.floor((Math.random() * child.length) + 1);
             let temp = child[x];
             child[x] = child[y];
             child[y] = temp;
-            console.log("mutant" + child)
-;        }
+            //console.log("mutant" + child)
+        }
         return child;
-
     };
 
     this.getDNA = function () {

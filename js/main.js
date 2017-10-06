@@ -201,11 +201,9 @@ PlayState.update = function () {
     this.runIndex++;
     if(this.runIndex === 20) {
         // Check if all the commands have run for all heroes
-        console.log(this.populations.length + " " + this.populationIndex);
-        if(this.populationIndex < 2) {
+        if(this.populationIndex < 10) {
             this._runPopulation(this.populations[this.populationIndex]);
         }
-
     }
     this.coinFont.text = `x${this.coinPickupCount}`;
 };
@@ -213,7 +211,7 @@ PlayState.update = function () {
 PlayState._runPopulation = function (currentPopulation) {
 
     if(this.commandIndex !== currentPopulation.size) {
-        console.log(currentPopulation);
+        // console.log(currentPopulation);
         this._handleInput(this.DNA[this.commandIndex]);
         this.commandIndex++;
         this.runIndex = 0;
@@ -223,12 +221,13 @@ PlayState._runPopulation = function (currentPopulation) {
             this.heroes.children[i].move(0);
             currentPopulation.members[i].setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
         }
-        console.log(this.population);
+        //console.log(this.population);
 
         this._createNewGeneration();
         this.populationIndex++;
         this.runIndex = 0;
         this.commandIndex = 0;
+        console.log(this.populations);
     }
 };
 
@@ -410,23 +409,19 @@ PlayState._calculateDistance = function(pos1, pos2){
 
 PlayState._createNewGeneration = function () {
 
-    this.population.mapFitnessScoreMembers();
-    this.newPopulation = new population(1);
-    this.populations[1] = this.newPopulation;
+    console.log("Creating population : " + this.populationIndex);
+    this.populations[this.populationIndex].mapFitnessScoreMembers();
+    this.newPopulation = new population(this.populationIndex + 1);
+    this.populations[this.populationIndex + 1] = this.newPopulation;
     this.newPopulation.createPopulation(this.population.members);
 
-    //console.log(this.population);
-    //console.log(this.newPopulation);
-
     for(let i = 0; i < this.newPopulation.size; i++) {
-        //console.log(this.newPopulation.members[i]);
         this.DNA[i] = this.newPopulation.members[i].getDNA();
-        //this.heroes.children[i].body.moves = false;
-        this.heroes.children[i].x = 21;
-        this.heroes.children[i].y = 525;
+        this.heroes.children[i].kill();
+        this.heroes.children[i].reset(21, 525);
     }
-    //console.log(this.heroes.children)
 };
+
 // entry point
 window.onload = function () {
     let game = new Phaser.Game(960, 600, Phaser.AUTO, 'game');
