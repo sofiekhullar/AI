@@ -141,6 +141,7 @@ PlayState.init = function () {
     // Index to control the current population
     this.populationIndex = 0;
 
+    this.button;
 };
 
 PlayState.preload = function () {
@@ -167,6 +168,8 @@ PlayState.preload = function () {
     this.game.load.audio('sfx:coin', 'audio/coin.wav');
     this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
     this.game.load.audio('sfx:door', 'audio/door.wav');
+
+    this.game.load.image('button','images/testknapp.png');
 };
 
 PlayState.create = function () {
@@ -184,6 +187,8 @@ PlayState.create = function () {
 
     // crete hud with scoreboards
     this._createHud();
+    this.createGUI();
+    this.game.stage.backgroundColor = '#ffffff';
 };
 
 PlayState.update = function () {
@@ -411,9 +416,28 @@ PlayState._createNewGeneration = function () {
     }
 };
 
+PlayState.addOnClick = function(){
+
+}
+
+PlayState.createGUI = function() {
+  
+    
+    this.startbutton = this.game.add.button(20, 600, 'button', this.addOnClick, this);
+
+    this.stopbutton = this.game.add.button(100, 600, 'button', this.addOnClick, this);
+
+
+
+
+}
+
 // entry point
 window.onload = function () {
-    let game = new Phaser.Game(960, 600, Phaser.AUTO, 'game');
+    let game = new Phaser.Game(960, 800, Phaser.AUTO, 'game');
     game.state.add('play', PlayState);
     game.state.start('play');
+
 };
+
+
