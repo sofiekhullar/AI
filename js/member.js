@@ -5,7 +5,7 @@ function member(){
      this.propFitnessScore = 0;
      let ID;
      this.mutantChance = 5;
-     this.DNASize = 30;
+     this.DNASize = 10;
      let commandList = ["WR", "WL", "J", "JR", "JL"];
 
      // create random member DNA
@@ -38,7 +38,7 @@ function member(){
         //possible to get the DNS from only one parent
         let random = Math.floor((Math.random() * parent1.length) + 1);
         let gene1 = parent1.slice(0, random);
-        let gene2 = parent2.slice(random, 10);
+        let gene2 = parent2.slice(random, this.DNASize);
         let child = gene1.concat(gene2);
         this.DNA = this.addMutation(child);
     };

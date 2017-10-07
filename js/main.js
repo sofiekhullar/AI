@@ -118,10 +118,10 @@ PlayState.init = function () {
 
     // Add array with populations
     this.populations = [];
+    // Create the first population
     this.population = new population(0);
     this.population.createFirstPopulation();
     this.populations[0] = this.population;
-    //this.population.createPopulation();
 
     this.DNA = [];
     for(let i = 0; i < this.population.size; i++){
@@ -130,26 +130,17 @@ PlayState.init = function () {
 
     this.game.renderer.renderSession.roundPixels = true;
 
-    this.keys = this.game.input.keyboard.addKeys({
-        left: Phaser.KeyCode.LEFT,
-        right: Phaser.KeyCode.RIGHT,
-        up: Phaser.KeyCode.UP
-    });
-
-   /* this.keys.up.onDown.add(function () {
-        let didJump = this.heroes.jump();
-        if (didJump) {
-            this.sfx.jump.play();
-        }
-    }, this);*/
-
+    // Index to check amount of coins
     this.coinPickupCount = 0;
-
-    // variables for updating commands
+    // Index to set the time for changing command
     this.runIndex = 0;
+    // Index to change the commands
     this.commandIndex = 0;
+    // Index to change the hero
     this.heroIndex = 0;
+    // Index to control the current population
     this.populationIndex = 0;
+
 };
 
 PlayState.preload = function () {
@@ -199,9 +190,9 @@ PlayState.update = function () {
     this._handleCollisions();
 
     this.runIndex++;
-    if(this.runIndex === 20) {
+    if(this.runIndex === 30) {
         // Check if all the commands have run for all heroes
-        if(this.populationIndex < 10) {
+        if(this.populationIndex < 3) {
             this._runPopulation(this.populations[this.populationIndex]);
         }
     }
@@ -209,26 +200,23 @@ PlayState.update = function () {
 };
 
 PlayState._runPopulation = function (currentPopulation) {
-
-    if(this.commandIndex !== currentPopulation.size) {
-        // console.log(currentPopulation);
-        this._handleInput(this.DNA[this.commandIndex]);
+    if(this.commandIndex !== currentPopulation.members[0].DNASize) {
+        this._handleInput();
         this.commandIndex++;
         this.runIndex = 0;
+
     } else {
         // If all commands are done, make heroes stop and calculate fitness score
         for(let i = 0; i < this.population.size; i++){
             this.heroes.children[i].move(0);
             currentPopulation.members[i].setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
         }
-        //console.log(this.population);
-
         this._createNewGeneration();
         this.populationIndex++;
         this.runIndex = 0;
         this.commandIndex = 0;
-        console.log(this.populations);
     }
+
 };
 
 PlayState._handleCollisions = function () {
@@ -241,27 +229,28 @@ PlayState._handleCollisions = function () {
     this.game.physics.arcade.overlap(this.heroes, this.door, this._onHeroVsDoor, null, this);
 };
 
-PlayState._handleInput = function (command) {
-    this.heroes.children[0].move(1);
-    for(let i = 0; i <= command.length; i++) {
-        if (command[i] === "WR") {
+PlayState._handleInput = function () {
+
+    for(let i = 0; i < this.populations[this.populationIndex].size; i++) {
+        let DNACommand = this.populations[this.populationIndex].getMember(i).DNA[this.commandIndex];
+        if (DNACommand === "WR") {
             //console.log("go right");
             this.heroes.children[this.heroIndex].move(1);
         }
-        else if (command[i] === "WL") {
+        else if (DNACommand === "WL") {
             //console.log("go left");
             this.heroes.children[this.heroIndex].move(-1);
         }
-        else if (command[i] === "J") {
+        else if (DNACommand === "J") {
             //console.log("jump");
             this.heroes.children[this.heroIndex].jump();
         }
-        else if (command[i] === "JR") {
+        else if (DNACommand === "JR") {
             //console.log("jump right");
             this.heroes.children[this.heroIndex].move(1);
             this.heroes.children[this.heroIndex].jump();
         }
-        else if (command[i] === "JL") {
+        else if (DNACommand === "JL") {
             //console.log("jump left");
             this.heroes.children[this.heroIndex].move(-1);
             this.heroes.children[this.heroIndex].jump();
@@ -273,6 +262,7 @@ PlayState._handleInput = function (command) {
             this.heroIndex = 0;
         }
     }
+
 };
 
 PlayState._loadLevel = function (data) {
@@ -375,7 +365,8 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
 
 PlayState._onHeroVsDoor = function (hero, door) {
     this.sfx.door.play();
-    this.game.state.restart();
+    //this.game.state.restart();
+    hero.move(0);
     // TODO: go to the next level instead
 };
 
@@ -408,8 +399,6 @@ PlayState._calculateDistance = function(pos1, pos2){
 };
 
 PlayState._createNewGeneration = function () {
-
-    console.log("Creating population : " + this.populationIndex);
     this.populations[this.populationIndex].mapFitnessScoreMembers();
     this.newPopulation = new population(this.populationIndex + 1);
     this.populations[this.populationIndex + 1] = this.newPopulation;

@@ -24,7 +24,7 @@ function population(generationNr){
             let bestParent2 = this.getBestParents();
             //console.log("best parent " + bestParent1.DNA  + " + "  + bestParent2.DNA);
             this.member = new member();
-            this.member.createMember(bestParent1.DNA, bestParent2.DNA); //bestParents[0], bestParents[1]);
+            this.member.createMember(bestParent1.DNA, bestParent2.DNA);
             this.members[i] = this.member;
         }
     };
@@ -36,8 +36,7 @@ function population(generationNr){
         });
 
         let random = Math.floor((Math.random() *101));
-        let startValue = 100 * this.membersLastGen[0].propFitnessScore; // Best member
-        //console.log(startValue + ", random " + random);
+        let startValue = 100 * this.membersLastGen[0].propFitnessScore;
 
         for(let i = 0; i < this.size; i++){
             if(random <= startValue){
