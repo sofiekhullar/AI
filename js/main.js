@@ -1,5 +1,5 @@
 // hero class
-function Hero(game, x, y) {
+function Hero(game, x, y, id) {
     Phaser.Sprite.call(this, game, x, y, 'hero');
     this.anchor.set(0.5, 0.5);
 
@@ -11,6 +11,7 @@ function Hero(game, x, y) {
     // physic properties
     this.game.physics.enable(this);
     this.body.collideWorldBounds = true;
+    this.id = id;
 }
 
 // inherit from Phaser.Sprite
@@ -140,7 +141,6 @@ PlayState.init = function () {
     this.heroIndex = 0;
     // Index to control the current population
     this.populationIndex = 0;
-
 };
 
 PlayState.preload = function () {
@@ -192,7 +192,7 @@ PlayState.update = function () {
     this.runIndex++;
     if(this.runIndex === 30) {
         // Check if all the commands have run for all heroes
-        if(this.populationIndex < 3) {
+        if(this.populationIndex < 15) {
             this._runPopulation(this.populations[this.populationIndex]);
         }
     }
@@ -233,29 +233,32 @@ PlayState._handleInput = function () {
 
     for(let i = 0; i < this.populations[this.populationIndex].size; i++) {
         let DNACommand = this.populations[this.populationIndex].getMember(i).DNA[this.commandIndex];
-        if (DNACommand === "WR") {
-            //console.log("go right");
-            this.heroes.children[this.heroIndex].move(1);
+        if(!this.populations[this.populationIndex].getMember(i).win) {
+            if (DNACommand === "WR") {
+                //console.log("go right");
+                this.heroes.children[this.heroIndex].move(1);
+            }
+            else if (DNACommand === "WL") {
+                //console.log("go left");
+                this.heroes.children[this.heroIndex].move(-1);
+            }
+            else if (DNACommand === "J") {
+                //console.log("jump");
+                this.heroes.children[this.heroIndex].jump();
+            }
+            else if (DNACommand === "JR") {
+                //console.log("jump right");
+                this.heroes.children[this.heroIndex].move(1);
+                this.heroes.children[this.heroIndex].jump();
+            }
+            else if (DNACommand === "JL") {
+                //console.log("jump left");
+                this.heroes.children[this.heroIndex].move(-1);
+                this.heroes.children[this.heroIndex].jump();
+            }
+        }else {
+            this.heroes.children[this.heroIndex].move(0);
         }
-        else if (DNACommand === "WL") {
-            //console.log("go left");
-            this.heroes.children[this.heroIndex].move(-1);
-        }
-        else if (DNACommand === "J") {
-            //console.log("jump");
-            this.heroes.children[this.heroIndex].jump();
-        }
-        else if (DNACommand === "JR") {
-            //console.log("jump right");
-            this.heroes.children[this.heroIndex].move(1);
-            this.heroes.children[this.heroIndex].jump();
-        }
-        else if (DNACommand === "JL") {
-            //console.log("jump left");
-            this.heroes.children[this.heroIndex].move(-1);
-            this.heroes.children[this.heroIndex].jump();
-        }
-
         // Go to the next hero and make one command for each and then reset index
         this.heroIndex++;
         if(this.heroIndex === this.population.size) {
@@ -319,16 +322,15 @@ PlayState._spawnCharacters = function (data) {
     }, this);
 
     this._spawnHeroes();
-    // spawn heroes
-
 };
 
 PlayState._spawnHeroes = function () {
     let x = 21;
     let y = 525;
     for(let i = 0; i < this.population.size; i++){
-        let sprite = new Hero(this.game, x, y);
+        let sprite = new Hero(this.game, x, y, i);
         this.heroes.add(sprite);
+        this.heroes.id = i;
     }
 };
 
@@ -359,14 +361,14 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
     else {
     	// game over -> restart the game
         this.sfx.stomp.play();
-        this.game.state.restart();
+        //this.game.state.restart();
     }
 };
 
 PlayState._onHeroVsDoor = function (hero, door) {
     this.sfx.door.play();
     //this.game.state.restart();
-    hero.move(0);
+    this.populations[this.populationIndex].getMember(door.id).setWin();
     // TODO: go to the next level instead
 };
 
@@ -385,8 +387,8 @@ PlayState._createHud = function () {
 };
 
 PlayState._spawnDoor = function (x, y) {
-	x = 460; // Hardcoded because changes in json did not work
-	y = 340;
+	x = 798; // Hardcoded because changes in json did not work
+	y = 540;
     this.door = this.bgDecoration.create(x, y, 'door');
     this.door.anchor.setTo(0.5, 1);
     this.game.physics.enable(this.door);
@@ -402,12 +404,19 @@ PlayState._createNewGeneration = function () {
     this.populations[this.populationIndex].mapFitnessScoreMembers();
     this.newPopulation = new population(this.populationIndex + 1);
     this.populations[this.populationIndex + 1] = this.newPopulation;
-    this.newPopulation.createPopulation(this.population.members);
 
+    this.newPopulation.createPopulation(this.populations[this.populationIndex].members);
+
+    // Reset the heroes position
     for(let i = 0; i < this.newPopulation.size; i++) {
         this.DNA[i] = this.newPopulation.members[i].getDNA();
         this.heroes.children[i].kill();
         this.heroes.children[i].reset(21, 525);
+    }
+    // Reset the coins
+    for(let i = 0; i < this.coins.children.length; i ++){
+        this.coins.children[i].kill();
+        this.coins.children[i].reset(this.coins.children[i].x, this.coins.children[i].y);
     }
 };
 

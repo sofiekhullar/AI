@@ -7,6 +7,7 @@ function member(){
      this.mutantChance = 5;
      this.DNASize = 10;
      let commandList = ["WR", "WL", "J", "JR", "JL"];
+     this.win = false;
 
      // create random member DNA
      this.createFirstMember = function(){
@@ -26,15 +27,10 @@ function member(){
         for(let i = 0; i < this.DNASize; i ++) {
             this.DNA[i] = commandList[Math.floor((Math.random() * commandList.length))];
         }
-
-        //console.log("Creating member with DNA: " + this.DNA);
         return this.DNA;
     };
 
     this.createDNA = function (parent1, parent2) {
-        //let parent1 = ["WR", "WL", "J", "JR", "JL","WR", "WL", "J", "JR", "JL"];
-        //let parent2 = ["WL0","WL1","WL2","WL3","WL4","WL5","WL6","WL7","WL8","WL9"];
-
         //possible to get the DNS from only one parent
         let random = Math.floor((Math.random() * parent1.length) + 1);
         let gene1 = parent1.slice(0, random);
@@ -52,7 +48,6 @@ function member(){
             let temp = child[x];
             child[x] = child[y];
             child[y] = temp;
-            //console.log("mutant" + child)
         }
         return child;
     };
@@ -81,9 +76,8 @@ function member(){
 
     this.setPropFitnessScore = function (propFitnessScore) {
         this.propFitnessScore = propFitnessScore;
-    }
-
-    this.operatorBigger = function (member1, member2) {
-        return (member1.fitnessScore > member2.fitnessScore)
+    };
+    this.setWin = function (){
+        this.win = true;
     }
 }
