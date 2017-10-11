@@ -141,7 +141,16 @@ PlayState.init = function () {
     this.heroIndex = 0;
     // Index to control the current population
     this.populationIndex = 0;
+
     this.stop = false;
+
+    this.startButton;
+    this.stopButton;
+    this.popNrText;
+    this.bestMemberText;
+    this.style = { font: "bold 16px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" };
+
+    this.yled = 0;
 };
 
 PlayState.preload = function () {
@@ -168,6 +177,9 @@ PlayState.preload = function () {
     this.game.load.audio('sfx:coin', 'audio/coin.wav');
     this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
     this.game.load.audio('sfx:door', 'audio/door.wav');
+
+    this.game.load.image('startbutton','images/start.png');
+    this.game.load.image('stopbutton', 'images/stop.png')
 };
 
 PlayState.create = function () {
@@ -185,6 +197,8 @@ PlayState.create = function () {
 
     // crete hud with scoreboards
     this._createHud();
+    this.createGUI();
+    this.game.stage.backgroundColor = '#ffffff';
 };
 
 PlayState.update = function () {
@@ -402,8 +416,8 @@ PlayState._createHud = function () {
 };
 
 PlayState._spawnDoor = function (x, y) {
-	x = 798; // Hardcoded because changes in json did not work
-	y = 540;
+	x = 820; // Hardcoded because changes in json did not work
+	y = 90;
     this.door = this.bgDecoration.create(x, y, 'door');
     this.door.anchor.setTo(0.5, 1);
     this.game.physics.enable(this.door);
@@ -426,8 +440,11 @@ PlayState._createNewGeneration = function () {
     this.populations[this.populationIndex].mapFitnessScoreMembers();
     this.newPopulation = new population(this.populationIndex + 1);
     this.populations[this.populationIndex + 1] = this.newPopulation;
-
     this.newPopulation.createPopulation(this.populations[this.populationIndex].members);
+
+    this.popNrText.setText("Population nr: " + this.populations[this.populationIndex +1].generationNr);
+    this.bestMemberText = this.game.add.text(200, 650 + this.yled, "Best in population nr " + this.populations[this.populationIndex].generationNr + ": " + this.populations[this.populationIndex].members[0].minDistance, this.style);
+    this.yled += 30;
 
     // Reset the heroes position
     for(let i = 0; i < this.newPopulation.size; i++) {
@@ -450,9 +467,35 @@ PlayState._createNewGeneration = function () {
     }
 };
 
+PlayState.startGame = function(){
+    console.log("startknapp");   
+}
+
+PlayState.stopGame = function(){
+    
+}
+
+
+
+PlayState.createGUI = function() {
+  
+    
+    this.startButton = this.game.add.button(20, 650, 'startbutton', this.startGame, this);
+
+    this.stopButton = this.game.add.button(20, 700, 'stopbutton', this.stopGame, this);
+    
+    this.popNrText = this.game.add.text(30, 770, "Population nr: " + this.populations[this.populationIndex].generationNr, this.style);
+    //this.popNrText.setTextBounds(70, 770);
+
+    this.bestMemberText = this.game.add.text();
+};
+
 // entry point
 window.onload = function () {
-    let game = new Phaser.Game(960, 600, Phaser.AUTO, 'game');
+    let game = new Phaser.Game(960, 800, Phaser.AUTO, 'game');
     game.state.add('play', PlayState);
     game.state.start('play');
+
 };
+
+
