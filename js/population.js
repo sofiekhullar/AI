@@ -2,7 +2,7 @@ function population(generationNr){
     this.members = [];
     this.membersLastGen = [];
     this.generationNr = generationNr;
-    this.size = 10;
+    this.size = 40;
 
     this.createFirstPopulation = function(){
         console.log("creating first population...");
@@ -15,7 +15,7 @@ function population(generationNr){
     };
 
     this.createPopulation = function(membersLastGen){
-        console.log("creating next population nr " + this.generationNr + " last gen " + membersLastGen[0].DNA);
+        console.log("creating next population nr " + this.generationNr);
         this.membersLastGen = membersLastGen;
 
         for(let i = 0; i < this.size; i++){
@@ -27,13 +27,14 @@ function population(generationNr){
             this.member.createMember(bestParent1.DNA, bestParent2.DNA);
             this.members[i] = this.member;
         }
-        console.log("Best in prev generation : " + this.membersLastGen[0].fitnessScore);
+        console.log("Best in prev generation during : " + this.membersLastGen[0].minDistance);
+        console.log("Best Y  in prev generation during : " + this.membersLastGen[0].minDistanceY);
     };
 
-    this.getBestParents = function(){
+    this.getBestParents = function() {
         // sort first and then random choose from best parents
         this.membersLastGen.sort(function (a,b) {
-           return a.fitnessScore - b.fitnessScore;
+           return a.minDistance - b.minDistance;
         });
 
         let random = Math.floor((Math.random() *101));
@@ -52,14 +53,12 @@ function population(generationNr){
 
     this.mapFitnessScoreMembers = function(){
         let totalScore = 0;
-
         for(let i = 0; i < this.members.length; i++){
-            totalScore += 1/(1 + this.members[i].getFitnessScore());
+            totalScore += 1/(1 + this.members[i].minDistance + this.members[i].minDistanceY * 2);
         }
         for(let i = 0; i <this.members.length; i++){
-            this.members[i].setPropFitnessScore((1/(1+this.members[i].fitnessScore) / totalScore));
+            this.members[i].propFitnessScore = ((1/(1+this.members[i].minDistance + this.members[i].minDistanceY) / totalScore));
         }
-
     };
 
     this.setSize = function (size) {

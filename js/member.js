@@ -4,10 +4,12 @@ function member(){
      this.fitnessScore = 0;
      this.propFitnessScore = 0;
      let ID;
-     this.mutantChance = 5;
-     this.DNASize = 10;
+     this.mutantChance = 10;
+     this.DNASize = 20;
      let commandList = ["WR", "WL", "J", "JR", "JL"];
      this.win = false;
+     this.minDistance = 100000000;
+     this.minDistanceY = 10000000;
 
      // create random member DNA
      this.createFirstMember = function(){
@@ -57,7 +59,7 @@ function member(){
     };
 
     // calculate distance to door
-    this.calcFitnessScore = function(){
+   /* this.calcFitnessScore = function(){
         // Get last position and time  (+coins)
         return this.fitnessScore;
     };
@@ -68,16 +70,15 @@ function member(){
     
     this.getFitnessScore = function(){
         return this.fitnessScore;
-    };
+    };*/
 
-    this.getID = function () {
-        return ID;
-    };
-
-    this.setPropFitnessScore = function (propFitnessScore) {
-        this.propFitnessScore = propFitnessScore;
-    };
     this.setWin = function (){
         this.win = true;
+    };
+    this.setMinDistance = function (minDistance) {
+        this.minDistance = minDistance;
+    };
+    this.setMinDistanceY = function (minDistanceY) {
+        this.minDistanceY = minDistanceY;
     }
 }

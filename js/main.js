@@ -141,6 +141,7 @@ PlayState.init = function () {
     this.heroIndex = 0;
     // Index to control the current population
     this.populationIndex = 0;
+    this.stop = false;
 };
 
 PlayState.preload = function () {
@@ -190,9 +191,9 @@ PlayState.update = function () {
     this._handleCollisions();
 
     this.runIndex++;
-    if(this.runIndex === 30) {
+    if(this.runIndex === 25) {
         // Check if all the commands have run for all heroes
-        if(this.populationIndex < 15) {
+        if(!this.stop) {
             this._runPopulation(this.populations[this.populationIndex]);
         }
     }
@@ -209,7 +210,7 @@ PlayState._runPopulation = function (currentPopulation) {
         // If all commands are done, make heroes stop and calculate fitness score
         for(let i = 0; i < this.population.size; i++){
             this.heroes.children[i].move(0);
-            currentPopulation.members[i].setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
+            //currentPopulation.members[i].setFitnessScore(this._calculateDistance(this.heroes.children[i].position, this.door.position));
         }
         this._createNewGeneration();
         this.populationIndex++;
@@ -259,13 +260,22 @@ PlayState._handleInput = function () {
         }else {
             this.heroes.children[this.heroIndex].move(0);
         }
+        let currentDistance = this._calculateDistance(this.door.position, this.heroes.children[this.heroIndex].position);
+        let currentDistanceY = this._calculateDistanceY(this.door.position, this.heroes.children[this.heroIndex].position);
+
+        if(currentDistance < this.populations[this.populationIndex].getMember(i).minDistance) {
+            this.populations[this.populationIndex].getMember(i).setMinDistance(currentDistance);
+        }
+
+        if(currentDistanceY < this.populations[this.populationIndex].getMember(i).minDistanceY) {
+            this.populations[this.populationIndex].getMember(i).setMinDistanceY(currentDistanceY);
+        }
         // Go to the next hero and make one command for each and then reset index
         this.heroIndex++;
         if(this.heroIndex === this.population.size) {
             this.heroIndex = 0;
         }
     }
-
 };
 
 PlayState._loadLevel = function (data) {
@@ -329,10 +339,14 @@ PlayState._spawnHeroes = function () {
     let y = 525;
     for(let i = 0; i < this.population.size; i++){
         let sprite = new Hero(this.game, x, y, i);
+        sprite.inputEnabled = true;
+        sprite.input.useHandCursor = true;
+        sprite.events.onInputDown.add(this.clickedHero, {hero: sprite});
         this.heroes.add(sprite);
         this.heroes.id = i;
     }
 };
+
 
 PlayState._spawnCoin = function (coin) {
     let sprite = this.coins.create(coin.x, coin.y, 'coin');
@@ -361,6 +375,7 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
     else {
     	// game over -> restart the game
         this.sfx.stomp.play();
+        hero.kill();
         //this.game.state.restart();
     }
 };
@@ -396,8 +411,15 @@ PlayState._spawnDoor = function (x, y) {
 };
 
 PlayState._calculateDistance = function(pos1, pos2){
-    let distance = Math.sqrt(Math.pow((pos2.x-pos1.x), 2) + Math.pow((pos2.y-pos1.y), 2));
-    return distance;
+    return  Math.sqrt(Math.pow((pos2.x-pos1.x), 2) + Math.pow((pos2.y-pos1.y), 2));
+};
+
+PlayState._calculateDistanceY = function(pos1, pos2){
+    return pos2.y - pos1.y;
+};
+
+PlayState.clickedHero = function () {
+    console.log(this.hero.id);
 };
 
 PlayState._createNewGeneration = function () {
@@ -413,10 +435,18 @@ PlayState._createNewGeneration = function () {
         this.heroes.children[i].kill();
         this.heroes.children[i].reset(21, 525);
     }
+
+    console.log(this.populations);
     // Reset the coins
     for(let i = 0; i < this.coins.children.length; i ++){
         this.coins.children[i].kill();
         this.coins.children[i].reset(this.coins.children[i].x, this.coins.children[i].y);
+    }
+    // TODO hack for spawning enemies
+    this.spiders.forEachAlive(function(c){c.kill()});
+    for(let i = 0; i < 3; i++){
+        let sprite = new Spider(this.game, this.spiders.children[i].x, this.spiders.children[i].y);
+        this.spiders.add(sprite);
     }
 };
 
