@@ -141,7 +141,14 @@ PlayState.init = function () {
     // Index to control the current population
     this.populationIndex = 0;
 
-    this.button;
+    this.startButton;
+    this.stopButton;
+    this.popNrText;
+    this.bestMemberText;
+    this.style = { font: "bold 16px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" };
+
+    this.yled = 0;
+
 };
 
 PlayState.preload = function () {
@@ -169,7 +176,8 @@ PlayState.preload = function () {
     this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
     this.game.load.audio('sfx:door', 'audio/door.wav');
 
-    this.game.load.image('button','images/testknapp.png');
+    this.game.load.image('startbutton','images/start.png');
+    this.game.load.image('stopbutton', 'images/stop.png')
 };
 
 PlayState.create = function () {
@@ -408,6 +416,9 @@ PlayState._createNewGeneration = function () {
     this.newPopulation = new population(this.populationIndex + 1);
     this.populations[this.populationIndex + 1] = this.newPopulation;
     this.newPopulation.createPopulation(this.population.members);
+    this.popNrText.setText("Population nr: " + this.populations[this.populationIndex +1].generationNr);
+    this.bestMemberText = this.game.add.text(200, 650 + this.yled, "Best in population nr " + this.populations[this.populationIndex].generationNr + ":" + this.populations[this.populationIndex].members[0].fitnessScore, this.style);
+    this.yled += 30;
 
     for(let i = 0; i < this.newPopulation.size; i++) {
         this.DNA[i] = this.newPopulation.members[i].getDNA();
@@ -416,17 +427,27 @@ PlayState._createNewGeneration = function () {
     }
 };
 
-PlayState.addOnClick = function(){
-
+PlayState.startGame = function(){
+    console.log("startknapp");   
 }
+
+PlayState.stopGame = function(){
+    
+}
+
+
 
 PlayState.createGUI = function() {
   
     
-    this.startbutton = this.game.add.button(20, 600, 'button', this.addOnClick, this);
+    this.startButton = this.game.add.button(20, 650, 'startbutton', this.startGame, this);
 
-    this.stopbutton = this.game.add.button(100, 600, 'button', this.addOnClick, this);
+    this.stopButton = this.game.add.button(20, 700, 'stopbutton', this.stopGame, this);
+    
+    this.popNrText = this.game.add.text(30, 770, "Population nr: " + this.populations[this.populationIndex].generationNr, this.style);
+    //this.popNrText.setTextBounds(70, 770);
 
+    this.bestMemberText = this.game.add.text()
 
 
 
