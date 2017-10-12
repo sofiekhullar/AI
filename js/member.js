@@ -11,6 +11,7 @@ function member(){
      this.minDistance = 100000000;
      this.minDistanceY = 10000000;
      this.platformScore = 0;
+     this.platformCommandIndex = 0;
      this.totaltFitnessScore = 0;
 
      // create random member DNA

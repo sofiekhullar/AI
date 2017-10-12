@@ -151,7 +151,7 @@ PlayState.init = function () {
 };
 
 PlayState.preload = function () {
-    this.game.load.json('level:1', 'data/level01.json');
+    this.game.load.json('level:1', 'data/levelTest.json');
 
     this.game.load.image('font:numbers', 'images/numbers.png');
 
@@ -317,12 +317,12 @@ PlayState._loadLevel = function (data) {
 
     this._spawnDoor(data.door.x, data.door.y);
 
-    this._spawnInvisibleGround(0,420,8, -300);
-    this._spawnInvisibleGround(420,336,4, -50);
-    this._spawnInvisibleGround(672,378,8, -20); // Worst platform
-    this._spawnInvisibleGround(126,252,4, -70);
-    this._spawnInvisibleGround(462,168,6, -50);
-    this._spawnInvisibleGround(798,84,2 , -10);
+    this._spawnInvisibleGround(0,420,8, 2); // 1
+    this._spawnInvisibleGround(420,336,4, 4); // 2
+    this._spawnInvisibleGround(672,378,8, 2); // 3
+    this._spawnInvisibleGround(126,252,4, 8); // 4
+    this._spawnInvisibleGround(462,168,6, 16); // 5
+    this._spawnInvisibleGround(798,84,2 , 32); // 6
 
     // enable gravity
     const GRAVITY = 1200;
@@ -352,9 +352,9 @@ PlayState._spawnEnemyWall = function (x, y, side) {
 };
 
 PlayState._spawnInvisibleGround= function (x,y, size, platformScore) {
-    let sprite = this.invisibleGrounds.create(x, y - 5, 'invisible-ground');
+    let sprite = this.invisibleGrounds.create(x + 9, y - 5, 'invisible-ground');
     this.game.physics.enable(sprite);
-    sprite.scale.x = size;
+    sprite.scale.x = size - 0.5;
     sprite.body.immovable = true;
     sprite.body.allowGravity = false;
     sprite.platformScore = platformScore;
@@ -415,9 +415,11 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
 };
 
 PlayState._invisibleGroundVsHero = function (hero, ground) {
-    if(ground.platformScore !== this.populations[this.populationIndex].members[hero.id].platformScore){
+    if(ground.platformScore > this.populations[this.populationIndex].members[hero.id].platformScore){
         this.populations[this.populationIndex].members[hero.id].platformScore = ground.platformScore;
-        console.log(this.populations[this.populationIndex].members[hero.id].platformScore);
+        this.populations[this.populationIndex].members[hero.id].platformCommandIndex = this.commandIndex;
+
+        console.log("During runtime " + this.populations[this.populationIndex].members[hero.id].platformScore);
     }
 };
 

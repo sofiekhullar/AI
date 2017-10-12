@@ -54,12 +54,15 @@ function population(generationNr){
     this.mapFitnessScoreMembers = function(){
         let totalScore = 0;
         for(let i = 0; i < this.members.length; i++){
-            totalScore += 1/(1 + this.members[i].minDistance  + this.members[i].platformScore);
+
+            totalScore += (this.members[i].platformScore + this.members[i].platformScore * ((this.members[i].DNASize - this.members[i].platformCommandIndex) * 0.01));
         }
         for(let i = 0; i <this.members.length; i++){
-            this.members[i].propFitnessScore = ((1/(1+this.members[i].minDistance + this.members[i].platformScore) / totalScore));
-            this.members[i].totaltFitnessScore = this.members[i].minDistance + this.members[i].platformScore;
-            console.log(this.members[i].minDistance + this.members[i].platformScore);
+            //this.members[i].propFitnessScore = ((1/(1+this.members[i].minDistance + this.members[i].platformScore) / totalScore));
+            //this.members[i].totaltFitnessScore = this.members[i].minDistance + this.members[i].platformScore;
+            this.members[i].propFitnessScore =  ((this.members[i].platformScore + this.members[i].platformScore* ((this.members[i].DNASize - this.members[i].platformCommandIndex) * 0.01)) / totalScore);
+            this.members[i].totaltFitnessScore = (this.members[i].platformScore + this.members[i].platformScore* ((this.members[i].DNASize - this.members[i].platformCommandIndex) * 0.01));
+            console.log("After run : " + this.members[i].totaltFitnessScore);
         }
     };
 
