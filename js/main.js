@@ -144,10 +144,7 @@ PlayState.init = function () {
 
     this.stop = false;
 
-    this.startButton;
-    this.stopButton;
     this.popNrText;
-    this.bestMemberText;
     this.style = { font: "bold 16px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" };
 
     this.yled = 0;
@@ -166,6 +163,7 @@ PlayState.preload = function () {
     this.game.load.image('grass:2x1', 'images/grass_2x1.png');
     this.game.load.image('grass:1x1', 'images/grass_1x1.png');
     this.game.load.image('invisible-wall', 'images/invisible_wall.png');
+    this.game.load.image('invisible-ground', 'images/invisible_ground.png');
     this.game.load.image('icon:coin', 'images/coin_icon.png');
 
     this.game.load.spritesheet('coin', 'images/coin_animated.png', 22, 22);
@@ -199,16 +197,22 @@ PlayState.create = function () {
     this._createHud();
     this.createGUI();
     this.game.stage.backgroundColor = '#ffffff';
+
+
 };
 
 PlayState.update = function () {
     this._handleCollisions();
+    //console.log('X:' + this.input.activePointer.x);
+    //console.log('Y:' + this.input.activePointer.y);
 
     this.runIndex++;
     if(this.runIndex === 25) {
         // Check if all the commands have run for all heroes
         if(!this.stop) {
             this._runPopulation(this.populations[this.populationIndex]);
+        }else{
+            this.heroes.forEach(function(c){c.move(0)})
         }
     }
     this.coinFont.text = `x${this.coinPickupCount}`;
@@ -242,6 +246,7 @@ PlayState._handleCollisions = function () {
     this.game.physics.arcade.overlap(this.heroes, this.coins, this._onHeroVsCoin, null, this);
     this.game.physics.arcade.overlap(this.heroes, this.spiders, this._onHeroVsEnemy, null, this);
     this.game.physics.arcade.overlap(this.heroes, this.door, this._onHeroVsDoor, null, this);
+    this.game.physics.arcade.overlap(this.heroes, this.invisibleGrounds, this._invisibleGroundVsHero, null, this)
 };
 
 PlayState._handleInput = function () {
@@ -301,6 +306,7 @@ PlayState._loadLevel = function (data) {
     this.heroes = this.game.add.group();
     this.enemyWalls = this.game.add.group();
     this.enemyWalls.visible = false;
+    this.invisibleGrounds = this.add.group();
 
     // spawn all platforms
     data.platforms.forEach(this._spawnPlatform, this);
@@ -310,6 +316,13 @@ PlayState._loadLevel = function (data) {
     data.coins.forEach(this._spawnCoin, this);
 
     this._spawnDoor(data.door.x, data.door.y);
+
+    this._spawnInvisibleGround(0,420,8, -300);
+    this._spawnInvisibleGround(420,336,4, -50);
+    this._spawnInvisibleGround(672,378,8, -20); // Worst platform
+    this._spawnInvisibleGround(126,252,4, -70);
+    this._spawnInvisibleGround(462,168,6, -50);
+    this._spawnInvisibleGround(798,84,2 , -10);
 
     // enable gravity
     const GRAVITY = 1200;
@@ -338,12 +351,20 @@ PlayState._spawnEnemyWall = function (x, y, side) {
     sprite.body.allowGravity = false;
 };
 
+PlayState._spawnInvisibleGround= function (x,y, size, platformScore) {
+    let sprite = this.invisibleGrounds.create(x, y - 5, 'invisible-ground');
+    this.game.physics.enable(sprite);
+    sprite.scale.x = size;
+    sprite.body.immovable = true;
+    sprite.body.allowGravity = false;
+    sprite.platformScore = platformScore;
+};
 PlayState._spawnCharacters = function (data) {
     // spawn spiders
-    data.spiders.forEach(function (spider) {
+    /*data.spiders.forEach(function (spider) {
         let sprite = new Spider(this.game, spider.x, spider.y);
         this.spiders.add(sprite);
-    }, this);
+    }, this);*/
 
     this._spawnHeroes();
 };
@@ -355,12 +376,11 @@ PlayState._spawnHeroes = function () {
         let sprite = new Hero(this.game, x, y, i);
         sprite.inputEnabled = true;
         sprite.input.useHandCursor = true;
-        sprite.events.onInputDown.add(this.clickedHero, {hero: sprite});
+        sprite.events.onInputDown.add(this.clickedHero, {hero: sprite, this:this} );
         this.heroes.add(sprite);
         this.heroes.id = i;
     }
 };
-
 
 PlayState._spawnCoin = function (coin) {
     let sprite = this.coins.create(coin.x, coin.y, 'coin');
@@ -394,6 +414,13 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
     }
 };
 
+PlayState._invisibleGroundVsHero = function (hero, ground) {
+    if(ground.platformScore !== this.populations[this.populationIndex].members[hero.id].platformScore){
+        this.populations[this.populationIndex].members[hero.id].platformScore = ground.platformScore;
+        console.log(this.populations[this.populationIndex].members[hero.id].platformScore);
+    }
+};
+
 PlayState._onHeroVsDoor = function (hero, door) {
     this.sfx.door.play();
     //this.game.state.restart();
@@ -416,8 +443,8 @@ PlayState._createHud = function () {
 };
 
 PlayState._spawnDoor = function (x, y) {
-	x = 600; // Hardcoded because changes in json did not work
-	y = 170;
+	x = 850; // Hardcoded because changes in json did not work
+	y = 90;
     this.door = this.bgDecoration.create(x, y, 'door');
     this.door.anchor.setTo(0.5, 1);
     this.game.physics.enable(this.door);
@@ -433,7 +460,12 @@ PlayState._calculateDistanceY = function(pos1, pos2){
 };
 
 PlayState.clickedHero = function () {
-    console.log(this.hero.id);
+    console.log(this.this.populations[this.this.populationIndex]);
+   // console.log(this.populations[this.populationIndex]);
+
+    //console.log(this.populations[this.populationIndex].members[this.hero.id].DNA);
+    this.this.game.add.text(600, 750, "DNA " + this.this.populations[this.this.populationIndex].members[this.hero.id].DNA, this.this.style);
+
 };
 
 PlayState._createNewGeneration = function () {
@@ -443,7 +475,8 @@ PlayState._createNewGeneration = function () {
     this.newPopulation.createPopulation(this.populations[this.populationIndex].members);
 
     this.popNrText.setText("Population nr: " + this.populations[this.populationIndex +1].generationNr);
-    this.bestMemberText = this.game.add.text(200, 650 + this.yled, "Best in population nr " + this.populations[this.populationIndex].generationNr + ": " + this.populations[this.populationIndex].members[0].minDistance, this.style);
+
+    this.game.add.text(200, 650 + this.yled, "Best in population nr " + this.populations[this.populationIndex].generationNr + ": " + this.populations[this.populationIndex].members[39].totaltFitnessScore.toFixed(2), this.style);
     this.yled += 30;
 
     // Reset the heroes position
@@ -460,34 +493,32 @@ PlayState._createNewGeneration = function () {
         this.coins.children[i].reset(this.coins.children[i].x, this.coins.children[i].y);
     }
     // TODO hack for spawning enemies
-    this.spiders.forEachAlive(function(c){c.kill()});
+    /*this.spiders.forEachAlive(function(c){c.kill()});
     for(let i = 0; i < 3; i++){
         let sprite = new Spider(this.game, this.spiders.children[i].x, this.spiders.children[i].y);
         this.spiders.add(sprite);
-    }
+    }*/
 };
 
 PlayState.startGame = function(){
-    console.log("startknapp");   
-}
+    console.log("startknapp");
+    this.stop = false;
+};
 
 PlayState.stopGame = function(){
-    
-}
+    console.log("stopknapp");
+    this.stop = true;
+};
 
 
 
 PlayState.createGUI = function() {
-  
-    
-    this.startButton = this.game.add.button(20, 650, 'startbutton', this.startGame, this);
-
-    this.stopButton = this.game.add.button(20, 700, 'stopbutton', this.stopGame, this);
+    this.game.add.button(20, 650, 'startbutton', this.startGame, this);
+    this.game.add.button(20, 700, 'stopbutton', this.stopGame, this);
     
     this.popNrText = this.game.add.text(30, 770, "Population nr: " + this.populations[this.populationIndex].generationNr, this.style);
-    //this.popNrText.setTextBounds(70, 770);
+    this.game.add.text(600, 650, "Click on hero to get DNA", this.style);
 
-    this.bestMemberText = this.game.add.text();
 };
 
 // entry point

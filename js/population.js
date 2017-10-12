@@ -34,7 +34,7 @@ function population(generationNr){
     this.getBestParents = function() {
         // sort first and then random choose from best parents
         this.membersLastGen.sort(function (a,b) {
-           return a.minDistance - b.minDistance;
+           return a.propFitnessScore - b.propFitnessScore;
         });
 
         let random = Math.floor((Math.random() *101));
@@ -54,10 +54,12 @@ function population(generationNr){
     this.mapFitnessScoreMembers = function(){
         let totalScore = 0;
         for(let i = 0; i < this.members.length; i++){
-            totalScore += 1/(1 + this.members[i].minDistance + this.members[i].minDistanceY * 2);
+            totalScore += 1/(1 + this.members[i].minDistance  + this.members[i].platformScore);
         }
         for(let i = 0; i <this.members.length; i++){
-            this.members[i].propFitnessScore = ((1/(1+this.members[i].minDistance + this.members[i].minDistanceY) / totalScore));
+            this.members[i].propFitnessScore = ((1/(1+this.members[i].minDistance + this.members[i].platformScore) / totalScore));
+            this.members[i].totaltFitnessScore = this.members[i].minDistance + this.members[i].platformScore;
+            console.log(this.members[i].minDistance + this.members[i].platformScore);
         }
     };
 

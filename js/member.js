@@ -5,11 +5,13 @@ function member(){
      this.propFitnessScore = 0;
      let ID;
      this.mutantChance = 10;
-     this.DNASize = 20;
+     this.DNASize = 40;
      let commandList = ["WR", "WL", "J", "JR", "JL"];
      this.win = false;
      this.minDistance = 100000000;
      this.minDistanceY = 10000000;
+     this.platformScore = 0;
+     this.totaltFitnessScore = 0;
 
      // create random member DNA
      this.createFirstMember = function(){
