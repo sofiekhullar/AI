@@ -416,8 +416,8 @@ PlayState._createHud = function () {
 };
 
 PlayState._spawnDoor = function (x, y) {
-	x = 820; // Hardcoded because changes in json did not work
-	y = 90;
+	x = 600; // Hardcoded because changes in json did not work
+	y = 170;
     this.door = this.bgDecoration.create(x, y, 'door');
     this.door.anchor.setTo(0.5, 1);
     this.game.physics.enable(this.door);
@@ -492,7 +492,7 @@ PlayState.createGUI = function() {
 
 // entry point
 window.onload = function () {
-    let game = new Phaser.Game(960, 800, Phaser.AUTO, 'game');
+    let game = new Phaser.Game(960, 1500, Phaser.AUTO, 'game');
     game.state.add('play', PlayState);
     game.state.start('play');
 

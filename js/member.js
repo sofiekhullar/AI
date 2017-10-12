@@ -34,7 +34,8 @@ function member(){
 
     this.createDNA = function (parent1, parent2) {
         //possible to get the DNS from only one parent
-        let random = Math.floor((Math.random() * parent1.length) + 1);
+        // TODO check if new DNA is right
+        let random = Math.floor((Math.random() * parent1.length -1) + 1);
         let gene1 = parent1.slice(0, random);
         let gene2 = parent2.slice(random, this.DNASize);
         let child = gene1.concat(gene2);
@@ -45,8 +46,8 @@ function member(){
         // TODO check value for mutation
         let random = Math.floor((Math.random() * 100) + 1);
         if(this.mutantChance >= random){
-            x = Math.floor((Math.random() * child.length) + 1);
-            y = Math.floor((Math.random() * child.length) + 1);
+            x = Math.floor((Math.random() * child.length));
+            y = Math.floor((Math.random() * child.length));
             let temp = child[x];
             child[x] = child[y];
             child[y] = temp;
